@@ -15,9 +15,25 @@
 function atom_label_regex(file, verbose = false)
     regex = r"(?<label>[A-Z][a-z]?\d+[A-Z]*)\s(?<species>[A-Z][a-z]?)\s"
 
+    function vprintln(str)
+        if verbose
+            println(str)
+        else
+            return
+        end
+    end
+
+    function vprint(str)
+        if verbose
+            print(str)
+        else
+            return
+        end
+    end
+
     # read file and find all instances of atom label problem
     data = readlines(file)
-    println("Original data: $(file)")
+    vprintln("Original data: $(file)")
     #[println(line) for line in data]
     matches = [match(regex, line) for line in data]
 
@@ -25,20 +41,19 @@ function atom_label_regex(file, verbose = false)
     clean = data
     for (index, line) in enumerate(data)
         if matches[index] ≠ nothing
-            println("$(index)/$(length(data)):\t$(matches[index][:label])\t→\t$(matches[index][:species])")
+            vprintln("$(index)/$(length(data)):\t$(matches[index][:label])\t→\t$(matches[index][:species])")
             clean[index] = replace(line, matches[index][:label]=>matches[index][:species])
         end
     end
 
-    println("Cleaned data: $(split(file, ".")[1])_labelsFixed.cif")
-    #[println(line) for line in clean]
+    vprintln("Cleaned data: $(split(file, ".")[1])_labelsFixed.cif")
 
     # save result
-    print("Saving to file...")
+    vprint("Saving to file...")
     io = open("$(split(file, ".")[1])_labelsFixed.cif", "w")
     [println(io, line) for line in clean]
     close(io)
-    println(" done.")
+    vprintln(" done.")
 end
 
 if (abspath(PROGRAM_FILE) == @__FILE__) || ((@isdefined Atom) && typeof(Atom) == Module)
